@@ -6,6 +6,7 @@ class MLP2Hidden(nn.Module):
     def __init__(self, d_in: int, width: int, d_out: int):
         super().__init__()
         self.width = width
+        self.d_in = d_in
         self.fc1 = nn.Linear(d_in, width, bias=False)   # W1
         self.fc2 = nn.Linear(width, width, bias=False)  # W2
         self.fc3 = nn.Linear(width, d_out, bias=False)  # W3
@@ -30,19 +31,38 @@ class MLP2Hidden(nn.Module):
             self.fc2.weight.normal_(0.0, 1.0 / math.sqrt(n))   # Var=1/n
             self.fc3.weight.normal_(0.0, 1.0 / math.sqrt(n))   # Var=1/n
 
-    def init_optimizer_mup(self, eta: float):
+    def init_optimizer_mup(self, eta: float, optimizer: str = "SGD"):
         n = self.width
-        return torch.optim.SGD(
+        if optimizer == "SGD":
+            return torch.optim.SGD(
             [
                 {"params": [self.fc1.weight], "lr": eta * n},  # eta1
                 {"params": [self.fc2.weight], "lr": eta},      # eta2
                 {"params": [self.fc3.weight], "lr": eta / n},  # eta3
             ],
         )
+        elif optimizer == "Adam":
+            return torch.optim.Adam(
+            [
+                {"params": [self.fc1.weight], "lr": eta },         # eta1
+                {"params": [self.fc2.weight], "lr": eta / n},      # eta2
+                {"params": [self.fc3.weight], "lr": eta / n},      # eta3
+            ],
+        )
     
-    def init_optimizer_ntk(self, eta: float):
+    def init_optimizer_ntk(self, eta: float, optimizer: str = "SGD"):
         n = self.width
-        return torch.optim.SGD(
+        if optimizer == "SGD":
+            return torch.optim.SGD(
+            [
+                {"params": [self.fc1.weight], "lr": eta},      # eta1
+                {"params": [self.fc2.weight], "lr": eta / n},  # eta2
+                {"params": [self.fc3.weight], "lr": eta / n},  # eta3
+            ],
+        )
+        elif optimizer == "Adam":
+            raise ValueError("Adam optimizer is not supported for NTK")
+            return torch.optim.Adam(
             [
                 {"params": [self.fc1.weight], "lr": eta},      # eta1
                 {"params": [self.fc2.weight], "lr": eta / n},  # eta2
@@ -75,15 +95,22 @@ class MLP1Hidden(nn.Module):
             self.fc1.weight.normal_(0.0, 1.0)                  # Var=1
             self.fc2.weight.normal_(0.0, 1.0 / math.sqrt(n))   # Var=1/n
 
-    def init_optimizer_mup(self, eta: float):
+    def init_optimizer_mup(self, eta: float, optimizer: str = "SGD"):
         n = self.width
-        return torch.optim.SGD(
+        if optimizer == "SGD":
+            return torch.optim.SGD(
             [
                 {"params": [self.fc1.weight], "lr": eta * n},  # eta1
                 {"params": [self.fc2.weight], "lr": eta / n},  # eta2
             ],
         )
-    
+        elif optimizer == "Adam":
+            return torch.optim.Adam(
+            [
+                {"params": [self.fc1.weight], "lr": eta},      # eta1
+                {"params": [self.fc2.weight], "lr": eta / n},  # eta2
+            ],
+        )
     def init_optimizer_ntk(self, eta: float):
         n = self.width
         return torch.optim.SGD(
