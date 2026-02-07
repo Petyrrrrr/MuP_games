@@ -27,3 +27,19 @@ def make_teacher(d: int, device, seed=42, teacher_width = 10000):
     W2 = torch.randn(teacher_width, teacher_width, generator=g, device=device) / math.sqrt(teacher_width)
     W3 = torch.randn(teacher_width, 1, generator=g, device=device) / math.sqrt(teacher_width)
     return (W1, W2, W3)
+
+def plot_stuff(steps, lrs, train_losses, widths, ylim=None, note='NTK'):
+    fig, axes = plt.subplots(1, len(steps), figsize=(5*len(steps), 4))
+    for i in range(len(steps)):
+        ax = axes[i]
+        for idx, width in enumerate(widths):
+            t_losses = [np.mean(train_losses[width][lr][steps[i]-100 : steps[i]+100]) for lr in lrs]
+            ax.plot(lrs, t_losses, marker='s', markersize=3, alpha=0.6, linestyle='--', label=f'Width {width}')
+        ax.set_title(f'{steps[i]} Steps '+note)
+        ax.set_xlabel('Learning Rate')
+        ax.set_xscale('log', base=2)
+        if ylim is not None:
+            ax.set_ylim(ylim[0], ylim[1])
+        if i == 0:
+            ax.legend()
+            ax.set_ylabel('MSE Loss')
