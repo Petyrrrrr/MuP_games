@@ -43,3 +43,8 @@ def plot_stuff(steps, lrs, train_losses, widths, ylim=None, note='NTK'):
         if i == 0:
             ax.legend()
             ax.set_ylabel('MSE Loss')
+
+def phi_3(x):  return (x**3 - 3*x)/math.sqrt(6)
+def phi_4(x):  return (x**4 - 6*x**2 + 3) / math.sqrt(24)
+def phi_5(x):  return (x**5 - 10*x**3 + 15*x)/math.sqrt(120)
+def phi_7(x):  return (x**7 - 21*x**5 + 105*x**3 - 105*x)/math.sqrt(5040)
