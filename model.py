@@ -36,7 +36,7 @@ class MLP2NTP(nn.Module):
         if optimizer == "SGD":
             return torch.optim.SGD(
             [
-                {"params": [self.fc1.weight], "lr": eta},      # eta1
+                {"params": [self.fc1.weight], "lr": eta},  # eta1
                 {"params": [self.fc2.weight], "lr": eta},  # eta2
                 {"params": [self.fc3.weight], "lr": eta},  # eta3
             ],
